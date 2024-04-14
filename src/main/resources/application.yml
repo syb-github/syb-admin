@@ -1,5 +1,6 @@
 server:
-  port: 9999
+  port: 80
+  url: http://localhost
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

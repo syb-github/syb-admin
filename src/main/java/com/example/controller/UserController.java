@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -15,6 +16,7 @@ import com.example.entity.User;
 import com.example.exception.CustomException;
 import com.example.service.LogService;
 import com.example.service.UserService;
+import com.example.utils.Constants;
 import org.apache.poi.util.StringUtil;
 import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -77,7 +80,8 @@ public class UserController {
     @PostMapping("/register")
     public Result<User> register(@RequestBody User user, HttpServletRequest request) {
         if (user.getPassword() == null) {
-            user.setPassword("123456");
+            user.setPassword(SecureUtil.md5().digestHex(Constants.DEFAULT_PASSWORD, Charset.forName("UTF-8")));
+
         }
         User dbUser = userService.register(user);
         request.getSession().setAttribute("user", user);

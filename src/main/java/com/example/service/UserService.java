@@ -1,6 +1,10 @@
 package com.example.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.crypto.SecureUtil;
+import cn.hutool.crypto.digest.BCrypt;
+import cn.hutool.crypto.digest.MD5;
+import cn.hutool.crypto.symmetric.AES;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,10 +13,16 @@ import com.example.entity.Role;
 import com.example.entity.User;
 import com.example.exception.CustomException;
 import com.example.mapper.UserMapper;
+import com.example.utils.CryptoUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -28,9 +38,13 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     private PermissionService permissionService;
 
     public User login(User user) {
-        LambdaQueryWrapper<User> queryWrapper = Wrappers.<User>lambdaQuery().eq(User::getUsername, user.getUsername()).eq(User::getPassword, user.getPassword());
+        LambdaQueryWrapper<User> queryWrapper = Wrappers.<User>lambdaQuery().eq(User::getUsername, user.getUsername());
         User one = getOne(queryWrapper);
-        if (one == null) {
+//        String decodePassword = new String(Base64Utils.decode(user.getPassword().getBytes()));
+
+        String decodePassword = CryptoUtil.decrypt(user.getPassword());
+        String password = SecureUtil.md5().digestHex(decodePassword, Charset.forName("UTF-8"));
+        if (one == null || !password.equals(one.getPassword())) {
             throw new CustomException("-1", "账号或密码错误");
         }
         one.setPermission(getPermissions(one.getId()));
@@ -52,6 +66,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
 
     /**
      * 设置权限
+     *
      * @param userId
      * @return
      */
@@ -80,5 +95,12 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         User one = getOne((Wrappers.<User>lambdaQuery().eq(User::getUsername, username)));
         one.setPermission(getPermissions(one.getId()));
         return one;
+    }
+
+
+    public static void main(String[] args) {
+        System.out.println(SecureUtil.md5().digestHex("admin123456", Charset.forName("UTF-8")));
+        String password = new String(Base64Utils.decode(Base64Utils.encode("admin123456".getBytes())), Charset.forName("UTF-8"));
+        System.out.println(password);
     }
 }

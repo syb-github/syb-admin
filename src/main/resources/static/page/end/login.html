@@ -34,8 +34,13 @@
     <script src="../../js/vue.min.js"></script>
     <script src="../../js/element.js"></script>
     <script src="../../js/gVerify.js"></script>
+    <script src="../../js/crypto-js.min.js"></script>
+    <script src="../../js/base.js"></script>
+    <script src="../../js/base64.js"></script>
+
 
     <script>
+
         //初始化验证码
         let  verifyCode;
 
@@ -81,6 +86,10 @@
                     //     });
                     //     return;
                     // }
+                    // this.user.password = Base64.encode(this.user.password);
+
+                    this.user.password = encrypt(this.user.password)
+                    console.log(this.user)
                     $.ajax({
                         url: "/api/user/login",
                         type: "POST",

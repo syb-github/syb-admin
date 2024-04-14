@@ -81,9 +81,9 @@ button {
 .el-aside {
     min-height: 100vh;
 }
-.el-aside,.el-menu {
-    overflow-x: hidden;
-}
+/*.el-aside,.el-menu {*/
+/*    overflow-x: hidden;*/
+/*}*/
 .horizontal-collapse-transition {
     transition: 0s;
 }
